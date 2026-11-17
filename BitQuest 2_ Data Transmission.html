@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BitQuest 2: Data Transmission</title>
+<style>
+:root{--bg:#fff;--fg:#3c3c3c;--mut:#777;--card:#fff;--line:#e5e5e5;--gl:#d7ffb8;--rl:#ffdfe0;--bl:#ddf4ff;--g:#58cc02;--gd:#58a700;--r:#ff4b4b;--rd:#ea2b2b;--b:#1cb0f6;--bd:#1899d6;--gt:#3d8c00;--rt:#d12c2c;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#131f24;--fg:#e8eef1;--mut:#9aa8af;--card:#1b2b32;--line:#37464f;--gl:#1f3d17;--rl:#3d1c1e;--bl:#12384a;--gt:#8be04a;--rt:#ff8a8a}}
+:root[data-theme="dark"]{--bg:#131f24;--fg:#e8eef1;--mut:#9aa8af;--card:#1b2b32;--line:#37464f;--gl:#1f3d17;--rl:#3d1c1e;--bl:#12384a;--gt:#8be04a;--rt:#ff8a8a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:600 16px/1.45 "Nunito","Segoe UI",system-ui,sans-serif;min-height:100vh}
+#app{max-width:640px;margin:0 auto;padding:12px 16px 260px}
+.top{display:flex;gap:10px;justify-content:space-between;font-weight:800}
+.pill{padding:6px 12px;border-radius:14px;background:var(--card);border:2px solid var(--line);font-weight:800}
+.ban{background:var(--g);color:#fff;border-radius:18px;border-bottom:5px solid var(--gd);padding:14px 18px;margin:16px 0 8px}
+.ban small{opacity:.85;font-weight:800;letter-spacing:1px}.ban h1{margin:2px 0 0;font-size:22px}
+.path{position:relative;width:340px;max-width:100%;margin:0 auto}.path svg{position:absolute;inset:0;width:100%;height:100%}
+.nd{position:absolute;transform:translateX(-50%);width:78px;height:72px;border-radius:50%;border:0;background:var(--c);box-shadow:0 7px 0 var(--cd);font-size:32px;cursor:pointer;color:#fff}
+.nd:active{transform:translate(-50%,5px);box-shadow:0 2px 0 var(--cd)}
+.nd.lock{background:var(--line);box-shadow:0 7px 0 var(--mut);filter:grayscale(1);opacity:.8}
+.nd.cur{animation:pulse 1.6s infinite}@keyframes pulse{50%{box-shadow:0 7px 0 var(--cd),0 0 0 10px rgba(88,204,2,.25)}}
+.nd.cur::before{content:"START";position:absolute;top:-38px;left:50%;transform:translateX(-50%);background:var(--card);color:var(--gt);border:2px solid var(--line);border-radius:12px;padding:3px 10px;font:800 13px inherit;font-family:inherit;animation:bob 1s infinite alternate}
+@keyframes bob{to{top:-44px}}
+.lbl{position:absolute;transform:translateX(-50%);top:84px;width:140px;text-align:center;font-size:13px;font-weight:800;color:var(--mut)}
+.btn{border:0;border-radius:16px;padding:14px 26px;font:800 16px inherit;font-family:inherit;letter-spacing:.8px;color:#fff;background:var(--g);box-shadow:0 5px 0 var(--gd);cursor:pointer;text-transform:uppercase}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--gd)}.btn.sm{padding:8px 22px;font-size:22px}
+.btn:disabled{background:var(--line);color:var(--mut);box-shadow:0 5px 0 var(--mut);cursor:not-allowed}
+.btn.r{background:var(--r);box-shadow:0 5px 0 var(--rd)}.btn.b{background:var(--b);box-shadow:0 5px 0 var(--bd)}
+.lh{display:flex;align-items:center;gap:12px;margin:6px 0 22px;font-weight:800}.x{background:none;border:0;color:var(--mut);font-size:24px;cursor:pointer}
+.pb{flex:1;height:16px;border-radius:9px;background:var(--line);overflow:hidden}
+.pb i{display:block;height:100%;width:0;background:var(--g);border-radius:9px;transition:width .5s cubic-bezier(.3,1.4,.5,1)}
+.tag{color:var(--b);font-weight:800;font-size:13px;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}.q{font-size:21px;margin:0 0 18px;line-height:1.35}
+.chip,.opt{font:inherit;font-weight:700;color:var(--fg);background:var(--card);border:2px solid var(--line);border-bottom-width:5px;border-radius:14px;padding:10px 14px;margin:0 8px 10px 0;cursor:pointer;text-align:left}
+.chip:hover,.opt:hover{background:var(--bl)}.chip.sel,.opt.sel{border-color:var(--b);background:var(--bl);color:var(--bd)}
+.opt{display:block;width:100%;margin-right:0}.opt.good{border-color:var(--g);background:var(--gl)}.opt.bad{border-color:var(--r);background:var(--rl)}
+.chip.empty{border-style:dashed;color:var(--mut);display:block;margin-right:0;cursor:default;background:none}.chip.pk{display:block;margin-right:0;border-color:var(--b)}.chip b{color:var(--b);margin-right:6px}
+.chip.sm{padding:6px 10px;margin:4px 6px 4px 0;font-size:14px}.pool{margin-top:16px;min-height:50px}
+.bks{display:grid;grid-template-columns:1fr 1fr;gap:12px}.bk{min-height:130px;border:3px dashed var(--line);border-radius:18px;padding:10px;cursor:pointer}.bk h4{margin:0 0 8px;font-size:14px;color:var(--b)}
+.mt{display:grid;grid-template-columns:1fr 1fr;gap:14px}.mi{display:block;width:100%;margin-right:0;font-size:15px}
+.blank{font:800 17px inherit;font-family:inherit;min-width:70px;border:0;border-bottom:3px solid var(--mut);background:none;color:var(--fg);margin:0 4px;cursor:pointer}.blank.fl{background:var(--bl);color:var(--bd);border-radius:10px;border-color:var(--b);padding:2px 10px}
+.sent{font-size:19px;line-height:2.5;margin-bottom:12px}.chip.used{opacity:.3;pointer-events:none}
+.bits,.tiles{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.bit,.tile{width:42px;height:52px;display:grid;place-items:center;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--fg);font:800 22px "Consolas","Courier New",monospace}
+.pbit{border:3px solid var(--b);background:var(--bl);color:var(--bd);cursor:pointer}.tile.out{border-color:var(--g);background:var(--gl);color:var(--gt)}
+.cd{display:flex;gap:6px;margin:10px 0}.cell{flex:1;text-align:center;border:2px solid var(--line);border-radius:12px;padding:6px 0;background:var(--card)}.cell b{display:block;font-size:24px}.cell small{color:var(--mut)}.cell em{display:block;font-style:normal;color:var(--bd);font-weight:800}.cell.chk{border-color:var(--b);background:var(--bl)}
+.hint{color:var(--mut);font-size:14px;margin-top:10px}.lock{pointer-events:none}.hide{display:none}
+.foot{position:fixed;left:0;right:0;bottom:0;border-top:2px solid var(--line);background:var(--bg);padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));animation:up .3s}
+.foot>div{max-width:640px;margin:0 auto;display:flex;gap:16px;align-items:center;justify-content:space-between}.foot .btn{min-width:140px}
+.foot.ok{background:var(--gl);border-color:var(--gl)}.foot.bad{background:var(--rl);border-color:var(--rl)}
+.fb{flex:1;font-size:15px}.fb h3{margin:0 0 4px;font-size:21px;font-weight:900}.ok .fb{color:var(--gt)}.bad .fb{color:var(--rt)}.fb p{margin:3px 0}
+@keyframes up{from{transform:translateY(100%)}to{transform:none}}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:grid;place-items:center;padding:20px;z-index:20}
+.box{background:var(--card);border-radius:24px;padding:28px;max-width:380px;text-align:center;animation:pop .35s}.box .big{font-size:64px}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+.stats{display:flex;gap:12px;justify-content:center;margin:18px 0;flex-wrap:wrap}.stats div{border:2px solid var(--line);border-radius:16px;padding:10px 16px;min-width:90px}.stats b{display:block;font-size:22px}
+canvas{position:fixed;inset:0;pointer-events:none;z-index:30}.shake{animation:sh .4s}@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+</style></head><body><div id="app"></div><canvas id="cv"></canvas>
+<script>
+const O=(q,a,e)=>({t:'o',q,a,e}),R=(q,b,i,e)=>({t:'r',q,b,i,e}),T=(q,p,e)=>({t:'t',q,p,e}),Q=(q,o,c,e)=>({t:'q',q,o,c,e}),W=(q,s,a,d,e)=>({t:'w',q,s,a,d,e}),P=(q,bits,m,e)=>({t:'p',q,bits,m,e}),C=(q,d,e)=>({t:'c',q,d,e}),Z=(q,x,r,g,e)=>({t:'z',q,x,r,g,e});
+const UN=[
+{n:'Secret Messages',i:'🔐',c:'#58cc02',d:'#58a700',qs:[
+Z('Encrypt the plaintext CODE with a Caesar cipher. Use the dial to shift every letter forward until you reach the ciphertext EQFG.','CODE',1,'EQFG','The Caesar cipher is a simple encryption algorithm that replaces each character with another one from the alphabet. Here the key is a shift of 2: C→E, O→Q, D→F, E→G.'),
+Z('You intercepted FDHVDU, which was encrypted with a forward shift. Turn the dial until the bottom row becomes a real word.','FDHVDU',-1,'CAESAR','Decrypting reverses the algorithm using the key. Shifting back by 3 turns F→C, D→A, H→E, V→S, D→A, U→R.'),
+T('Match each encryption term with its meaning.',[['Plaintext','The readable message before encryption'],['Ciphertext','The scrambled message nobody can understand'],['Algorithm','The method that does the scrambling'],['Key','The secret value the algorithm uses']],'Encryption converts plaintext into ciphertext so that it cannot be understood by unauthorised people. An encryption algorithm uses the encryption key to do this.'),
+R('Is each item NEEDED to start encrypting, or is it the RESULT?',['Needed','Result'],[['Plaintext',0],['Algorithm',0],['Encryption key',0],['Ciphertext',1]],'To encrypt data you need plaintext, an algorithm and an encryption key. Ciphertext is not an input: it is what comes out.')]},
+{n:'Symmetric',i:'🔑',c:'#1cb0f6',d:'#1899d6',qs:[
+O('Put the symmetric encryption steps in the right order.',['Sender and receiver exchange the same secret key','The sender encrypts the message with the secret key','The sender sends the data to the receiver','The receiver uses the secret key to decrypt the message'],'Symmetric encryption uses a single secret key shared by both sides: exchange the key, encrypt, send, then decrypt with the same key.'),
+W('Tap the words to complete the sentence.','Symmetric encryption uses {} secret key, which makes it {} and simpler. But a copy of the key must be sent to the receiver, causing the {} problem.',['one','faster','key distribution'],['two','slower','public key'],'Symmetric is easier and faster than asymmetric because it uses only one secret key. Using the same key to encrypt and decrypt creates a problem called key distribution.'),
+R('Which method fits each situation?',['Symmetric','Asymmetric'],[['Two students quickly swap a project file',0],['A company emails a contract to a new employee',1],['You need the simplest, fastest method',0],['You need the highest security',1]],'Symmetric is easier and faster (one secret key). Asymmetric is more secure because it uses two different keys.'),
+Q('Select ALL true statements about symmetric encryption.',['It uses one secret key','It uses a public and a private key','It is faster than asymmetric','The key must reach the receiver (key distribution)'],[0,2,3],'Symmetric encryption uses only one secret key to encrypt and decrypt, so it is fast, but the key has to be shared with the receiver.')]},
+{n:'Asymmetric & HTTPS',i:'🗝️',c:'#ce82ff',d:'#a559d6',qs:[
+O('Put the asymmetric encryption steps in the right order.',['The receiver generates two keys (public and private)','The receiver’s public key is sent to the sender','The sender uses the receiver’s public key to encrypt the data','The sender sends the encrypted data to the receiver','The receiver uses its private key to decrypt the data'],'In asymmetric encryption the two keys are never swapped as a pair: only the public key travels, and the private key stays with the receiver.'),
+T('Match each item with its role.',[['Public key','Sent to the sender and used to encrypt'],['Private key','Kept by the receiver and used to decrypt'],['Hacker with the private key','Can read the encrypted message'],['Two different keys','Why asymmetric is more secure']],'Asymmetric encryption uses two different keys to encrypt and decrypt data, which makes it more secure. If a hacker discovered the private key, they could read the message.'),
+Q('Select ALL true statements about asymmetric encryption.',['It uses two different keys','It is more secure than symmetric','Sender and receiver swap the same key','The receiver generates the public and private keys'],[0,1,3],'Asymmetric uses two different keys generated by the receiver. Swapping the same key is a symmetric step.'),
+W('Complete the sentence.','{} is the protocol that sends encrypted data between your browser and a website. Both symmetric and {} encryption are used for SSL and TLS.',['HTTPS','asymmetric'],['HTTP','USB'],'HTTPS transmits the encrypted data between the web browser and the website. Both symmetric and asymmetric encryption methods are used for Secure Socket Layer (SSL) and Transport Layer Security (TLS).')]},
+{n:'Data Flow',i:'🔀',c:'#ff9600',d:'#cc7800',qs:[
+T('Match each situation or term with its transmission mode.',[['A TV signal sent to your television','Simplex'],['A walkie-talkie conversation','Half-duplex'],['A phone call','Full-duplex'],['USB','Universal Serial Bus']],'Simplex sends data one way only. Half-duplex sends in both directions, one at a time. Full-duplex sends in both directions at the same time. USB is short for Universal Serial Bus.'),
+W('Complete the sentence.','In {} data goes one way only. In {} it goes both ways, one direction at a time, and in {} both ways at the same time.',['simplex','half-duplex','full-duplex'],['serial'],'Simplex: one direction. Half-duplex: both directions, but one direction at a time. Full-duplex: both directions at the same time.'),
+R('Which statement describes each mode?',['Only one direction at any moment','Both directions at once'],[['Simplex',0],['Half-duplex',0],['Full-duplex',1]],'Only full-duplex lets data packets travel in both directions at the same time. Simplex is one-way and half-duplex takes turns.'),
+W('Complete the sentence.','A flash drive is plugged into the computer’s USB {}, and USB is short for Universal {} Bus.',['port','Serial'],['cable','Parallel'],'To transmit data from a USB flash drive to a computer, the drive is plugged into the computer’s USB port. USB stands for Universal Serial Bus.')]},
+{n:'Parity Bits',i:'🧮',c:'#ff4b4b',d:'#ea2b2b',qs:[
+P('ODD parity: the whole byte must contain an odd number of 1s. Tap the parity bit to set it correctly.','1011010','odd','The 7 data bits 1011010 contain four 1s (an even number). To make the total odd, the parity bit must be 1.'),
+P('EVEN parity: the whole byte must contain an even number of 1s. Tap the parity bit to set it correctly.','0110111','even','The 7 data bits 0110111 contain five 1s (an odd number). To make the total even, the parity bit must be 1.'),
+Q('Odd parity was used. Select every byte that was transmitted incorrectly.',['10110110','01100110','11111111','00000001','10010001'],[1,2],'With odd parity every byte must contain an odd number of 1s. 01100110 has four 1s and 11111111 has eight, so both contain an error.'),
+Q('Interference can damage data during transmission. Select all the ways it can do that.',['Data loss','Data gain','Data change','Data improvement'],[0,1,2],'Errors can occur due to interference, e.g. data loss, data gain and data change. Error detection methods maintain the accuracy of the data.')]},
+{n:'Check Digits',i:'✅',c:'#ffc800',d:'#e5b400',qs:[
+C('Find the missing check digit. Multiply each digit by its position from the right, add everything up, and make the total divisible by 11.',[4,2,1,7,3],'4×6 + 2×5 + 1×4 + 7×3 + 3×2 = 65. Adding the check digit 1 (×1) gives 66, and 66 ÷ 11 has remainder 0, so the code is valid.'),
+C('Find the missing check digit for this code number.',[5,0,3,4,2],'5×6 + 0×5 + 3×4 + 4×3 + 2×2 = 58. Adding the check digit 8 (×1) gives 66, and 66 ÷ 11 has remainder 0.'),
+T('Match each item with its meaning.',[['ISBN','Identifies a book in a library'],['Barcode','Identifies an item in a supermarket'],['Check digit','Validates data when it is entered'],['Remainder 0','Code number and check digit are valid']],'Check digits are used in ISBNs and barcodes. A check digit is an error detection method used to validate input data. If the remainder is 0, the code is valid.'),
+Q('Select ALL steps of the check digit method.',['Multiply each digit by its position, counting from the right','Add the results together','Divide the total by 11','If the remainder is 0, the code is valid','If the remainder is 1, the code is valid'],[0,1,2,3],'Each digit is multiplied by its position from right to left, the results are added, the total is divided by 11, and a remainder of 0 means valid.')]},
+{n:'Error Detection',i:'🛡️',c:'#2b70c9',d:'#1d4f94',qs:[
+O('Put the Automatic Repeat Query (ARQ) process in order.',['Data is sent with a request for acknowledgement','The receiver replies: positive if the data is fine, negative if it has an error','If no acknowledgement arrives before the timeout, the data is resent','Resend requests repeat until the data is error-free, the limit is reached or an acknowledgement arrives'],'ARQ uses acknowledgements and timeouts. The resend request is repeatedly sent until the packet is received error free, a limit is reached or an acknowledgement is received.'),
+R('Is the error check done at the SENDER side or the RECEIVER side?',['Sender side','Receiver side'],[['Compares the returned copy with the original (echo check)',0],['Recalculates the checksum value',1],['Counts the 1s in each received byte (parity)',1],['Receives the echoed data back',0]],'In an echo check the check takes place at the sender side, while with the checksum method it takes place at the receiver side.'),
+T('Match each method with what makes it special.',[['Echo check','Cannot tell whether the error happened on the way there or back'],['ARQ','Uses acknowledgements and timeouts'],['Parity check','Counts the 1s in each byte'],['Check digit','Validates data on entry, not in transmission']],'In an echo check, the data might have been received correctly but could have been corrupted when sent back to the sender. A check digit is used to check data is valid on entry.'),
+Q('Select ALL methods used to detect errors in data transmission.',['Echo check','Checksum','Parity check','Automatic Repeat Query (ARQ)','Check digit'],[0,1,2,3],'Check digit checks that data is valid on entry, so it is not a transmission method. The main purpose of error detection is to maintain the accuracy of the data.')]}];
+const TAG={o:'Put in order',r:'Sort it',t:'Match the pairs',q:'Select all that apply',w:'Build the sentence',p:'Set the parity bit',c:'Calculate the check digit',z:'Caesar dial'},CO=['#58cc02','#1cb0f6','#ff9600','#ce82ff','#ff4b4b'];
+const G={xp:0,st:0,best:0,done:{}};let L=null,X={},AC;
+const $=s=>document.querySelector(s),app=$('#app'),shuf=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+function tone(f,t,d,ty='sine',v=.15){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain(),n=AC.currentTime+t;o.type=ty;o.frequency.value=f;g.gain.setValueAtTime(v,n);g.gain.exponentialRampToValueAtTime(.001,n+d);o.connect(g);g.connect(AC.destination);o.start(n);o.stop(n+d)}catch(e){}}
+const sOk=()=>[660,880,1320].forEach((f,i)=>tone(f,i*.09,.25)),sBad=()=>{tone(140,0,.3,'sawtooth',.12);tone(100,.13,.3,'sawtooth',.12)},sWin=()=>[523,659,784,1047].forEach((f,i)=>tone(f,i*.13,.35));
+function home(){L=null;const n=UN.length,H=n*130+60,pt=UN.map((_,i)=>[170+Math.sin(i*1.25)*85,60+i*130]);let d=`M${pt[0][0]} ${pt[0][1]}`;
+for(let i=1;i<n;i++){const a=pt[i-1],b=pt[i],m=(a[1]+b[1])/2;d+=` C${a[0]} ${m} ${b[0]} ${m} ${b[0]} ${b[1]}`}
+const cur=UN.findIndex((_,i)=>!G.done[i]);
+app.innerHTML=`<div class=top><span class=pill>🔥 ${G.st}</span><span class=pill>⚡ ${G.xp} XP</span><span class=pill>❤️ 5</span></div><div class=ban><small>CHAPTER 2 · TOPIC 2</small><h1>Data Transmission</h1></div>
+<div class=path style="height:${H}px"><svg viewBox="0 0 340 ${H}" preserveAspectRatio="none"><path d="${d}" fill=none stroke="var(--line)" stroke-width=10 stroke-dasharray="2 18" stroke-linecap=round /></svg>`+
+UN.map((u,i)=>{const s=G.done[i]?'done':i==cur?'cur':i<cur?'done':'lock',x=pt[i][0]/340*100;return`<button class="nd ${s}" style="left:${x}%;top:${pt[i][1]-36}px;--c:${u.c};--cd:${u.d}" onclick="go(${i},this)">${s=='lock'?'🔒':G.done[i]?'⭐':u.i}</button><div class=lbl style="left:${x}%;top:${pt[i][1]+50}px">${u.n}</div>`}).join('')+'</div>'}
+function go(i,el){if(i>0&&!G.done[i-1]){el.classList.add('shake');setTimeout(()=>el.classList.remove('shake'),400);return}
+L={u:i,q:UN[i].qs.map((_,k)=>k),n:UN[i].qs.length,cor:0,h:5,xp:0};show()}
+const hdr=()=>`<div class=lh><button class=x onclick=home()>✕</button><div class=pb><i id=bar style="width:${L.cor/L.n*100}%"></i></div><span id=hs>🔥${G.st} ❤️${L.h}</span></div>`;
+function show(){const q=UN[L.u].qs[L.q[0]],t=q.t;L.cur=q;
+X=t=='o'?{pool:shuf([...q.a.keys()]),pk:[]}:t=='r'?{as:q.i.map(_=>-1),sel:-1,ord:shuf([...q.i.keys()])}:t=='t'?{m:{},sel:-1,ro:shuf([...q.p.keys()])}:t=='q'?{s:new Set()}:t=='w'?{bank:shuf([...q.a,...q.d]),f:[]}:t=='p'?{b:0}:t=='c'?{v:0}:{n:0};
+app.innerHTML=hdr()+`<div class=tag>${TAG[t]}</div><h2 class=q>${q.q}</h2><div id=body></div><div class=foot id=ft><div><button class=btn id=chk disabled onclick=chk()>Check</button></div></div>`;draw()}
+const ones=s=>[...s].filter(c=>c=='1').length,tot=q=>q.d.reduce((s,d,i)=>s+d*(q.d.length+1-i),0)+X.v,cz=(q,n)=>[...q.x].map(c=>String.fromCharCode((c.charCodeAt(0)-65+q.r*n+260)%26+65)).join('');
+function draw(){const q=L.cur,t=q.t;let h='',ok=true;
+if(t=='o'){h=`<div>${q.a.map((_,k)=>X.pk[k]!=null?`<button class="chip pk" onclick=oDel(${k})><b>${k+1}</b>${q.a[X.pk[k]]}</button>`:`<div class="chip empty">${k+1}</div>`).join('')}</div><div class=pool>${X.pool.filter(i=>!X.pk.includes(i)).map(i=>`<button class=chip onclick=oAdd(${i})>${q.a[i]}</button>`).join('')}</div>`;ok=X.pk.length==q.a.length}
+if(t=='r'){h=`<div class=bks>${q.b.map((nm,b)=>`<div class=bk onclick=rPut(${b})><h4>${nm}</h4>${X.ord.filter(i=>X.as[i]==b).map(i=>`<button class="chip sm" onclick="event.stopPropagation();X.as[${i}]=-1;draw()">${q.i[i][0]}</button>`).join('')}</div>`).join('')}</div><div class=pool>${X.ord.filter(i=>X.as[i]<0).map(i=>`<button class="chip${X.sel==i?' sel':''}" onclick="X.sel=${i};draw()">${q.i[i][0]}</button>`).join('')}</div><div class=hint>Tap an item, then tap the box where it belongs.</div>`;ok=X.as.every(v=>v>=0)}
+if(t=='t'){const st=l=>l!=null?`style="border-color:${CO[l]};background:${CO[l]}33"`:'';h=`<div class=mt><div>${q.p.map((p,i)=>`<button class="chip mi${X.sel==i?' sel':''}" ${st(X.m[i]!=null?i:null)} onclick=tL(${i})>${p[0]}</button>`).join('')}</div><div>${X.ro.map(j=>{const l=Object.keys(X.m).find(k=>X.m[k]==j);return`<button class="chip mi" ${st(l)} onclick=tR(${j})>${q.p[j][1]}</button>`}).join('')}</div></div><div class=hint>Tap a left card, then its match on the right.</div>`;ok=Object.keys(X.m).length==q.p.length}
+if(t=='q'){h=q.o.map((o,i)=>`<button class="opt${X.s.has(i)?' sel':''}" onclick=qTog(${i})>${o}</button>`).join('');ok=X.s.size>0}
+if(t=='w'){let k=-1;h=`<div class=sent>${q.s.replace(/\{\}/g,()=>{k++;const v=X.f[k];return`<button class="blank${v!=null?' fl':''}" onclick=wDel(${k})>${v!=null?X.bank[v]:'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'}</button>`})}</div><div class=pool>${X.bank.map((w,j)=>`<button class="chip${X.f.includes(j)?' used':''}" onclick=wAdd(${j})>${w}</button>`).join('')}</div>`;ok=X.f.length==q.a.length}
+if(t=='p'){const n=ones(q.bits)+X.b;h=`<div class=bits>${[...q.bits].map(c=>`<span class=bit>${c}</span>`).join('')}<button class="bit pbit" onclick="X.b^=1;draw()">${X.b}</button></div><div class=hint>7 data bits + parity bit (tap it). The byte has <b>${n}</b> ones, which is <b>${n%2?'odd':'even'}</b>.</div>`}
+if(t=='c'){const w=q.d.length+1,s=tot(q);h=`<div class=cd>${q.d.map((d,i)=>`<div class=cell><b>${d}</b><small>×${w-i}</small><em>${d*(w-i)}</em></div>`).join('')}<div class="cell chk"><b>${X.v}</b><small>×1</small><em>${X.v}</em></div></div><div class=bits><button class="btn b sm" onclick=cSt(-1)>−</button><button class="btn b sm" onclick=cSt(1)>+</button></div><div class=hint>Total = <b>${s}</b> · ${s} ÷ 11 leaves remainder <b>${s%11}</b></div>`}
+if(t=='z'){h=`<div class=hint>Ciphertext / input</div><div class=tiles>${[...q.x].map(c=>`<span class=tile>${c}</span>`).join('')}</div><div class=bits><button class="btn b sm" onclick=zSt(-1)>−</button><span class=pill>Shift ${X.n}</span><button class="btn b sm" onclick=zSt(1)>+</button></div><div class=tiles>${[...cz(q,X.n)].map(c=>`<span class="tile out">${c}</span>`).join('')}</div><div class=hint>${q.r>0?'Target: '+q.g:'Stop when the bottom row is a real word.'}</div>`;ok=X.n>0}
+$('#body').innerHTML=h;$('#chk').disabled=!ok}
+const oAdd=i=>{X.pk.push(i);draw()},oDel=k=>{X.pk.splice(k,1);draw()},rPut=b=>{if(X.sel>=0){X.as[X.sel]=b;X.sel=-1;draw()}},wAdd=j=>{if(X.f.length<L.cur.a.length&&!X.f.includes(j)){X.f.push(j);draw()}},wDel=k=>{if(k<X.f.length){X.f.splice(k,1);draw()}},cSt=d=>{X.v=(X.v+d+10)%10;draw()},zSt=d=>{X.n=(X.n+d+26)%26;draw()},qTog=i=>{X.s.has(i)?X.s.delete(i):X.s.add(i);draw()};
+function tL(i){if(X.m[i]!=null){delete X.m[i];X.sel=-1}else X.sel=i;draw()}
+function tR(j){if(X.sel>=0){Object.keys(X.m).forEach(k=>{if(X.m[k]==j)delete X.m[k]});X.m[X.sel]=j;X.sel=-1}else Object.keys(X.m).forEach(k=>{if(X.m[k]==j)delete X.m[k]});draw()}
+function sol(q){const t=q.t;return t=='o'?q.a.map((a,k)=>`${k+1}. ${a}`).join(' · '):t=='r'?q.b.map((b,i)=>`${b}: ${q.i.filter(x=>x[1]==i).map(x=>x[0]).join(', ')}`).join(' | '):t=='t'?q.p.map(p=>`${p[0]} → ${p[1]}`).join(' · '):t=='q'?q.c.map(i=>q.o[i]).join(' · '):t=='w'?q.a.join(', '):t=='p'?'Parity bit = '+(((q.m=='odd'?1:0)+ones(q.bits))%2):t=='c'?'Check digit = '+((11-(tot(q)-X.v)%11)%11):q.g}
+function chk(){const q=L.cur,t=q.t;let ok;
+if(t=='o')ok=X.pk.every((v,k)=>v==k);
+else if(t=='r')ok=X.as.every((v,i)=>v==q.i[i][1]);
+else if(t=='t')ok=q.p.every((_,i)=>X.m[i]==i);
+else if(t=='q'){ok=X.s.size==q.c.length&&q.c.every(i=>X.s.has(i));document.querySelectorAll('.opt').forEach((e,i)=>{e.className='opt'+(q.c.includes(i)?' good':X.s.has(i)?' bad':'')})}
+else if(t=='w')ok=X.f.every((j,k)=>X.bank[j]==q.a[k]);
+else if(t=='p')ok=(ones(q.bits)+X.b)%2==(q.m=='odd'?1:0);
+else if(t=='c')ok=tot(q)%11==0;
+else ok=cz(q,X.n)==q.g;
+const s=sol(q);$('#body').classList.add('lock');
+if(ok){L.cor++;L.xp+=10;G.xp+=10;G.st++;G.best=Math.max(G.best,G.st);sOk()}else{L.h--;G.st=0;L.q.push(L.q[0]);sBad();$('#body').classList.add('shake')}
+L.q.shift();$('#bar').style.width=L.cor/L.n*100+'%';$('#hs').textContent=`🔥${G.st} ❤️${L.h}`;
+const f=$('#ft');f.className='foot '+(ok?'ok':'bad');
+f.innerHTML=`<div><div class=fb><h3>${ok?['✓ Correct! +10 XP','✓ Nailed it! +10 XP','✓ Great job! +10 XP'][L.cor%3]:'✗ Not quite. −1 heart'}</h3>${ok?'':`<p><b>Solution: ${s}</b></p>`}<p>${q.e}</p></div><button class="btn ${ok?'':'r'}" id=nx onclick=nxt()>Continue</button></div>`;$('#nx').focus()}
+function nxt(){if(L.h<=0)return fail();if(!L.q.length)return win();show()}
+function fail(){const m=document.createElement('div');m.className='modal';m.innerHTML=`<div class=box><div class=big>💔</div><h2>Out of Hearts</h2><p>Level failed! Review the explanations and try again.</p><button class=btn onclick="this.closest('.modal').remove();go(${L.u})">Retry level</button><p><button class="btn b" onclick="this.closest('.modal').remove();home()">Back to the path</button></p></div>`;document.body.appendChild(m)}
+function win(){G.done[L.u]=1;sWin();const last=L.u==UN.length-1;app.innerHTML=`<div style="text-align:center;padding-top:50px"><div style="font-size:80px">${last?'🏆':'🎉'}</div><h1>${last?'Chapter complete!':'Level complete!'}</h1><p style="color:var(--mut)">${UN[L.u].n}</p><div class=stats><div>⚡<b>${L.xp}</b>XP</div><div>❤️<b>${L.h}</b>hearts left</div><div>🔥<b>${G.best}</b>best streak</div></div><button class=btn onclick=home()>Continue</button></div>`;confetti()}
+function confetti(){const c=$('#cv'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;const k=['#58cc02','#ff4b4b','#1cb0f6','#ffc800'],p=Array.from({length:150},()=>({x:Math.random()*c.width,y:-20-Math.random()*c.height*.5,w:6+Math.random()*8,h:8+Math.random()*10,vx:Math.random()*4-2,vy:2+Math.random()*4,r:0,vr:Math.random()*.3-.15,c:k[Math.random()*4|0]}));let t=0;(function f(){x.clearRect(0,0,c.width,c.height);p.forEach(a=>{a.x+=a.vx;a.y+=a.vy;a.r+=a.vr;x.save();x.translate(a.x,a.y);x.rotate(a.r);x.fillStyle=a.c;x.fillRect(-a.w/2,-a.h/2,a.w,a.h);x.restore()});if(++t<220)requestAnimationFrame(f);else x.clearRect(0,0,c.width,c.height)})()}
+document.addEventListener('keydown',e=>{if(e.key!='Enter')return;const n=$('#nx'),c=$('#chk');if(n)n.click();else if(c&&!c.disabled)c.click()});
+home();
+</script></body></html>
