@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BitQuest 3: Hardware</title>
+<style>
+:root{--bg:#fff;--fg:#3c3c3c;--mut:#777;--card:#fff;--line:#e5e5e5;--gl:#d7ffb8;--rl:#ffdfe0;--bl:#ddf4ff;--g:#58cc02;--gd:#58a700;--r:#ff4b4b;--rd:#ea2b2b;--b:#1cb0f6;--bd:#1899d6;--gt:#3d8c00;--rt:#d12c2c;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#131f24;--fg:#e8eef1;--mut:#9aa8af;--card:#1b2b32;--line:#37464f;--gl:#1f3d17;--rl:#3d1c1e;--bl:#12384a;--gt:#8be04a;--rt:#ff8a8a}}
+:root[data-theme="dark"]{--bg:#131f24;--fg:#e8eef1;--mut:#9aa8af;--card:#1b2b32;--line:#37464f;--gl:#1f3d17;--rl:#3d1c1e;--bl:#12384a;--gt:#8be04a;--rt:#ff8a8a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:600 16px/1.45 "Nunito","Segoe UI",system-ui,sans-serif;min-height:100vh}
+#app{max-width:640px;margin:0 auto;padding:12px 16px 260px}
+.top{display:flex;gap:10px;justify-content:space-between;font-weight:800}
+.pill{padding:6px 12px;border-radius:14px;background:var(--card);border:2px solid var(--line);font-weight:800}
+.ban{background:var(--g);color:#fff;border-radius:18px;border-bottom:5px solid var(--gd);padding:14px 18px;margin:16px 0 8px}
+.ban small{opacity:.85;font-weight:800;letter-spacing:1px}.ban h1{margin:2px 0 0;font-size:22px}
+.path{position:relative;width:340px;max-width:100%;margin:0 auto}.path svg{position:absolute;inset:0;width:100%;height:100%}
+.nd{position:absolute;transform:translateX(-50%);width:78px;height:72px;border-radius:50%;border:0;background:var(--c);box-shadow:0 7px 0 var(--cd);font-size:32px;cursor:pointer;color:#fff}
+.nd:active{transform:translate(-50%,5px);box-shadow:0 2px 0 var(--cd)}
+.nd.lock{background:var(--line);box-shadow:0 7px 0 var(--mut);filter:grayscale(1);opacity:.8}
+.nd.cur{animation:pulse 1.6s infinite}@keyframes pulse{50%{box-shadow:0 7px 0 var(--cd),0 0 0 10px rgba(88,204,2,.25)}}
+.nd.cur::before{content:"START";position:absolute;top:-38px;left:50%;transform:translateX(-50%);background:var(--card);color:var(--gt);border:2px solid var(--line);border-radius:12px;padding:3px 10px;font:800 13px inherit;font-family:inherit;animation:bob 1s infinite alternate}
+@keyframes bob{to{top:-44px}}
+.lbl{position:absolute;transform:translateX(-50%);top:84px;width:140px;text-align:center;font-size:13px;font-weight:800;color:var(--mut)}
+.btn{border:0;border-radius:16px;padding:14px 26px;font:800 16px inherit;font-family:inherit;letter-spacing:.8px;color:#fff;background:var(--g);box-shadow:0 5px 0 var(--gd);cursor:pointer;text-transform:uppercase}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--gd)}.btn.sm{padding:8px 22px;font-size:22px}
+.btn:disabled{background:var(--line);color:var(--mut);box-shadow:0 5px 0 var(--mut);cursor:not-allowed}
+.btn.r{background:var(--r);box-shadow:0 5px 0 var(--rd)}.btn.b{background:var(--b);box-shadow:0 5px 0 var(--bd)}
+.lh{display:flex;align-items:center;gap:12px;margin:6px 0 22px;font-weight:800}.x{background:none;border:0;color:var(--mut);font-size:24px;cursor:pointer}
+.pb{flex:1;height:16px;border-radius:9px;background:var(--line);overflow:hidden}
+.pb i{display:block;height:100%;width:0;background:var(--g);border-radius:9px;transition:width .5s cubic-bezier(.3,1.4,.5,1)}
+.tag{color:var(--b);font-weight:800;font-size:13px;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}.q{font-size:21px;margin:0 0 18px;line-height:1.35}
+.chip,.opt{font:inherit;font-weight:700;color:var(--fg);background:var(--card);border:2px solid var(--line);border-bottom-width:5px;border-radius:14px;padding:10px 14px;margin:0 8px 10px 0;cursor:pointer;text-align:left}
+.chip:hover,.opt:hover{background:var(--bl)}.chip.sel,.opt.sel{border-color:var(--b);background:var(--bl);color:var(--bd)}
+.opt{display:block;width:100%;margin-right:0}.opt.good{border-color:var(--g);background:var(--gl)}.opt.bad{border-color:var(--r);background:var(--rl)}
+.chip.empty{border-style:dashed;color:var(--mut);display:block;margin-right:0;cursor:default;background:none}.chip.pk{display:block;margin-right:0;border-color:var(--b)}.chip b{color:var(--b);margin-right:6px}
+.chip.sm{padding:6px 10px;margin:4px 6px 4px 0;font-size:14px}.pool{margin-top:16px;min-height:50px}
+.bks{display:grid;grid-template-columns:1fr 1fr;gap:12px}.bk{min-height:130px;border:3px dashed var(--line);border-radius:18px;padding:10px;cursor:pointer}.bk h4{margin:0 0 8px;font-size:14px;color:var(--b)}
+.mt{display:grid;grid-template-columns:1fr 1fr;gap:14px}.mi{display:block;width:100%;margin-right:0;font-size:15px}
+.blank{font:800 17px inherit;font-family:inherit;min-width:70px;border:0;border-bottom:3px solid var(--mut);background:none;color:var(--fg);margin:0 4px;cursor:pointer}.blank.fl{background:var(--bl);color:var(--bd);border-radius:10px;border-color:var(--b);padding:2px 10px}
+.sent{font-size:19px;line-height:2.5;margin-bottom:12px}.chip.used{opacity:.3;pointer-events:none}
+.bits,.tiles{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.bit,.tile{width:42px;height:52px;display:grid;place-items:center;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--fg);font:800 22px "Consolas","Courier New",monospace}
+.pbit{border:3px solid var(--b);background:var(--bl);color:var(--bd);cursor:pointer}.tile.out{border-color:var(--g);background:var(--gl);color:var(--gt)}
+.cd{display:flex;gap:6px;margin:10px 0}.cell{flex:1;text-align:center;border:2px solid var(--line);border-radius:12px;padding:6px 0;background:var(--card)}.cell b{display:block;font-size:24px}.cell small{color:var(--mut)}.cell em{display:block;font-style:normal;color:var(--bd);font-weight:800}.cell.chk{border-color:var(--b);background:var(--bl)}
+input.rng{width:100%;accent-color:var(--g);height:34px}.hint{color:var(--mut);font-size:14px;margin-top:10px}.lock{pointer-events:none}.hide{display:none}
+.foot{position:fixed;left:0;right:0;bottom:0;border-top:2px solid var(--line);background:var(--bg);padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));animation:up .3s}
+.foot>div{max-width:640px;margin:0 auto;display:flex;gap:16px;align-items:center;justify-content:space-between}.foot .btn{min-width:140px}
+.foot.ok{background:var(--gl);border-color:var(--gl)}.foot.bad{background:var(--rl);border-color:var(--rl)}
+.fb{flex:1;font-size:15px}.fb h3{margin:0 0 4px;font-size:21px;font-weight:900}.ok .fb{color:var(--gt)}.bad .fb{color:var(--rt)}.fb p{margin:3px 0}
+@keyframes up{from{transform:translateY(100%)}to{transform:none}}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:grid;place-items:center;padding:20px;z-index:20}
+.box{background:var(--card);border-radius:24px;padding:28px;max-width:380px;text-align:center;animation:pop .35s}.box .big{font-size:64px}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+.stats{display:flex;gap:12px;justify-content:center;margin:18px 0;flex-wrap:wrap}.stats div{border:2px solid var(--line);border-radius:16px;padding:10px 16px;min-width:90px}.stats b{display:block;font-size:22px}
+canvas{position:fixed;inset:0;pointer-events:none;z-index:30}.shake{animation:sh .4s}@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+</style></head><body><div id="app"></div><canvas id="cv"></canvas>
+<script>
+const O=(q,a,e)=>({t:'o',q,a,e}),R=(q,b,i,e)=>({t:'r',q,b,i,e}),T=(q,p,e)=>({t:'t',q,p,e}),Q=(q,o,c,e)=>({t:'q',q,o,c,e}),W=(q,s,a,d,e)=>({t:'w',q,s,a,d,e}),P=(q,bits,m,e)=>({t:'p',q,bits,m,e}),C=(q,d,e)=>({t:'c',q,d,e}),Z=(q,x,r,g,e)=>({t:'z',q,x,r,g,e}),V=(q,min,max,step,unit,g,f,e)=>({t:'l',q,min,max,step,unit,g,f,e});
+const UN=[
+{n:'Routers',i:'📡',c:'#58cc02',d:'#58a700',qs:[
+O('Follow a data packet’s trip. Put the steps in the right order.',['A device sends a packet with the sender and receiver IP addresses in its header','The router reads the packet header','If there are several routes, the router picks the most efficient one','The packet is forwarded towards its destination'],'Packets carry the sender and receiver IP addresses in the header. If there is more than one route to the destination, the router tries to find the most efficient one, e.g. the fastest connection or the one with the least traffic.'),
+R('Which of these are a router’s job?',['Router does this','Not a router’s job'],[['Connects a LAN to the internet',0],['Chooses the most efficient route',0],['Assigns MAC addresses to devices',1],['Stores cloud files for users',1]],'A router connects a Local Area Network (LAN) to the internet and finds efficient routes. MAC addresses are assigned to devices by the manufacturer, and cloud files are stored on servers.'),
+W('Tap the words to complete the sentence.','A router connects computers with {} cables through its 4 to 12 ports, and many routers also offer {} connectivity.',['ethernet','wireless'],['optical','magnetic'],'Routers typically have between 4 and 12 ports to connect computers using ethernet cables, and many routers also offer wireless connectivity.'),
+T('Match each networking term with its meaning.',[['Router','Connects a LAN to the internet'],['Packet header','Holds the sender and receiver IP addresses'],['Efficient route','Fastest connection or least traffic'],['LAN','Local Area Network']],'The router is the device that connects a LAN to the internet. It reads the IP addresses in the packet header and selects an efficient route.')]},
+{n:'IP Addresses',i:'🔢',c:'#1cb0f6',d:'#1899d6',qs:[
+Q('Select ALL valid IPv4 addresses.',['192.168.0.1','10.256.3.4','172.16.254.1','192.168.1','255.255.255.255'],[0,2,4],'An IPv4 address is split into four 8-bit numbers, so each of them has a maximum value of 255. 10.256.3.4 has a number above 255 and 192.168.1 only has three numbers.'),
+Q('Select ALL valid IPv6 addresses.',['2001:0db8:85a3:0000:0000:8a2e:0370:7334','2001:0db8:85a3:0000:8a2e:0370:7334','2001:0db8:85a3:0000:0000:8a2e:0370:733g','fe80:0000:0000:0000:0202:b3ff:fe1e:8329'],[0,3],'An IPv6 address is 8 groups of 4 hexadecimal characters (digits 0–9 and letters A–F). The second has only 7 groups and the third contains the letter g.'),
+V('An IPv4 address is four 8-bit numbers. Slide to the total number of bits.',0,256,8,'bits',32,v=>`${v/8} number(s) of 8 bits each`,'An IPv4 address is made of four 8-bit numbers, so it is 32 bits long.'),
+V('An IPv6 address is eight groups of 16 bits (4 hex characters each). Slide to the total number of bits.',0,256,16,'bits',128,v=>`${v/16} group(s) of 16 bits each`,'An IPv6 address consists of 8 groups of 4 hexadecimal characters, which is 128 bits.'),
+R('Sort each fact: IPv4 or IPv6?',['IPv4','IPv6'],[['32 bits',0],['Four numbers, each up to 255',0],['128 bits',1],['Eight groups of 4 hex characters',1]],'IPv4 uses 32 bits (four 8-bit numbers). IPv6 uses 128 bits written as 32 hexadecimal characters in 8 groups of 4.')]},
+{n:'MAC Addresses',i:'🪪',c:'#ce82ff',d:'#a559d6',qs:[
+W('Complete the sentence about MAC addresses.','A MAC address is {} bits long. The first 24 bits are the {} code and the last 24 bits are an automatically generated {} number unique to that device.',['48','manufacturer','serial'],['32','128','IP'],'A MAC address is 48 bits long and is usually written in hexadecimal. The first 24 bits are the manufacturer code and the second 24 bits are an automatically generated serial number unique to that device.'),
+Q('Select ALL valid MAC addresses.',['00:1B:44:11:3A:B7','00:1B:44:11:3A','00:1B:44:11:3A:G7','A0:C9:14:C8:29:00'],[0,3],'MAC addresses are written as 12 hexadecimal digits (six pairs), using digits 0–9 and letters A–F. The second has only five pairs and the third contains the letter G.'),
+R('Sort each fact: MAC address or IP address?',['MAC address','IP address'],[['Assigned by the manufacturer',0],['48 bits, written in hexadecimal',0],['Sender and receiver included in the packet header',1],['32 bits or 128 bits',1]],'MAC addresses are assigned by the manufacturer. IP addresses (32-bit IPv4 or 128-bit IPv6) are the sender and receiver addresses included in the packet header.'),
+T('Match each part with its meaning.',[['First 24 bits','Manufacturer code'],['Last 24 bits','Unique serial number'],['Hexadecimal digits','0–9 and A–F'],['Who assigns a MAC address','The manufacturer, not the router']],'The first half identifies the manufacturer and the second half is a unique serial number. MAC addresses are assigned by the manufacturer, not by routers.')]},
+{n:'Storage Types',i:'💾',c:'#ff9600',d:'#cc7800',qs:[
+R('Is it PRIMARY or SECONDARY storage?',['Primary','Secondary'],[['ROM',0],['RAM',0],['HDD',1],['DVD',1],['CD',1]],'ROM is an example of primary storage, while HDD, DVD and CD are secondary storage devices/media. The CPU can access primary storage directly, which makes it faster than secondary storage.'),
+T('Match each storage type with its clue.',[['Magnetic','HDD'],['Optical','Laser reads pits and lands'],['Solid-state','No moving parts'],['Virtual memory','Secondary storage used as though it were RAM']],'A HDD is magnetic storage. Optical storage uses a laser to create and read pits and lands. Solid-state (flash) has no moving parts. Virtual memory lets the operating system use secondary storage as though it were RAM.'),
+Q('Select ALL true statements about solid-state storage.',['It has no moving parts','It uses logic gates to control the flow of electrons on a chip','Modern devices mostly use NAND flash','It uses a laser to read pits and lands'],[0,1,2],'Solid-state (flash) memory uses logic gates to control electrons on a chip. Older devices use NOR flash while more modern devices use NAND flash. Lasers are used by optical storage.'),
+R('Does it have moving parts?',['Moving parts','No moving parts'],[['HDD',0],['DVD',0],['Flash drive',1],['Solid-state drive',1]],'Solid-state (flash) is the type of secondary storage with no moving parts. HDDs and optical discs have to spin.')]},
+{n:'Cloud & Local',i:'☁️',c:'#ff4b4b',d:'#ea2b2b',qs:[
+R('Which storage fits each fact: LOCAL or CLOUD?',['Local storage','Cloud storage'],[['Needs no internet connection to open files',0],['Data kept on your own device',0],['Needs an internet connection to access data',1],['Students edit one file at the same time from home',1]],'Cloud storage needs an internet connection but lets users log in from any computer and potentially work on the same files at the same time.'),
+W('Complete the sentence.','Cloud data is stored on a {} located on the internet, so users need an internet {} to reach it from any computer.',['server','connection'],['router','cable'],'A server is the type of computer located on the internet that stores data in cloud storage systems. Cloud storage needs an internet connection to access the data.'),
+T('Match each term with its description.',[['Cloud storage','Needs an internet connection'],['Server','Computer on the internet that stores cloud data'],['Local storage','Data kept on your own device'],['Simultaneous editing','A benefit of cloud storage']],'Cloud storage can be accessed from any computer with an internet connection, and users can potentially work on the same files at the same time.'),
+Q('A class group is building a presentation from home. Select ALL benefits of cloud storage for them.',['Log in from any computer with internet','Edit the same file at the same time','Works with no internet at all','Access the presentation from home'],[0,1,3],'Cloud storage lets users log in and access data from any computer with an internet connection. It does not work without internet.')]},
+{n:'Input Devices',i:'⌨️',c:'#ffc800',d:'#e5b400',qs:[
+T('Match each input device with its job.',[['QR code','Stores more data than a barcode and can open a website'],['3D scanner','Scans all sides of a physical object'],['2D scanner','Copies passport data into a computer'],['Microphone','Records sound for playback']],'QR codes store more data than barcodes and let customers visit a website. A 3D scanner captures a whole object, a 2D scanner copies documents such as passports, and a microphone records sound.'),
+R('Is it a POINTING device or another input device?',['Pointing device','Other input device'],[['Optical mouse',0],['Touch screen',0],['Keyboard',1],['Microphone',1]],'Optical mouse and touch screen are pointing devices because they control a cursor or pointer on screen. The keyboard is the most suitable device to input letters and numbers.'),
+Q('Select ALL true statements about barcode scanners.',['Quicker than typing the number in','More accurate than typing the number in','Can input text from a book page','Best device for typing a letter'],[0,1],'Scanning a barcode is quicker and more accurate than typing the number using a keyboard, but it cannot input individual pieces of text from a book.'),
+W('Complete the sentences.','To store more data than a barcode and open a website, use a {} code. To scan every side of a toy figure, use a {} scanner.',['QR','3D'],['2D','bar'],'A QR code stores more data than a traditional barcode and lets customers visit a website. A 3D scanner scans all sides of a physical object.')]},
+{n:'CPU Power',i:'⚙️',c:'#2b70c9',d:'#1d4f94',qs:[
+O('The CPU wants data from memory. Put the lookup in order.',['The CPU tries to read data from a memory location','It first checks the cache memory','If the data is there, it is used straight from cache','If not, the data is fetched from the slower RAM'],'The CPU first checks cache memory. If the data is not there, it is accessed from the comparatively slower RAM.'),
+V('A CPU performs 3.5 billion cycles per second. Slide to its clock speed.',0,6,.5,'GHz',3.5,v=>`${(v*1e9).toLocaleString('en-US')} cycles per second`,'Clock speed is measured in GHz: 1 GHz is a billion cycles per second, so 3.5 billion cycles per second is 3.5 GHz.'),
+Q('Select ALL true statements about increasing clock speed.',['It increases CPU performance','It generates more heat','It uses more energy','It reduces the number of cores'],[0,1,2],'Increasing the clock speed increases performance, but generates more heat and uses more energy.'),
+V('Modern CPUs usually have between 2 and 16 cores. Slide to the typical maximum number of cores.',0,32,2,'cores',16,v=>`${v} instruction(s) can run at the same time`,'More cores let the CPU work on several instructions simultaneously, which increases performance. Modern CPUs usually have between 2 and 16 cores.'),
+W('Complete the sentences.','The {} is a general purpose register used by the ALU to store the result of its calculations. Registers sit inside the {}.',['ACC','CPU'],['RAM','ROM'],'The ACC (accumulator) is a general purpose register used by the Arithmetic Logic Unit to temporarily store the result of its calculations.')]}];
+const TAG={o:'Put in order',r:'Sort it',t:'Match the pairs',q:'Select all that apply',w:'Build the sentence',p:'Set the parity bit',c:'Calculate the check digit',z:'Caesar dial',l:'Slide to answer'},CO=['#58cc02','#1cb0f6','#ff9600','#ce82ff','#ff4b4b'];
+const G={xp:0,st:0,best:0,done:{}};let L=null,X={},AC;
+const $=s=>document.querySelector(s),app=$('#app'),shuf=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+function tone(f,t,d,ty='sine',v=.15){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain(),n=AC.currentTime+t;o.type=ty;o.frequency.value=f;g.gain.setValueAtTime(v,n);g.gain.exponentialRampToValueAtTime(.001,n+d);o.connect(g);g.connect(AC.destination);o.start(n);o.stop(n+d)}catch(e){}}
+const sOk=()=>[660,880,1320].forEach((f,i)=>tone(f,i*.09,.25)),sBad=()=>{tone(140,0,.3,'sawtooth',.12);tone(100,.13,.3,'sawtooth',.12)},sWin=()=>[523,659,784,1047].forEach((f,i)=>tone(f,i*.13,.35));
+function home(){L=null;const n=UN.length,H=n*130+60,pt=UN.map((_,i)=>[170+Math.sin(i*1.25)*85,60+i*130]);let d=`M${pt[0][0]} ${pt[0][1]}`;
+for(let i=1;i<n;i++){const a=pt[i-1],b=pt[i],m=(a[1]+b[1])/2;d+=` C${a[0]} ${m} ${b[0]} ${m} ${b[0]} ${b[1]}`}
+const cur=UN.findIndex((_,i)=>!G.done[i]);
+app.innerHTML=`<div class=top><span class=pill>🔥 ${G.st}</span><span class=pill>⚡ ${G.xp} XP</span><span class=pill>❤️ 5</span></div><div class=ban><small>CHAPTER 3 · TOPIC 3</small><h1>Hardware</h1></div>
+<div class=path style="height:${H}px"><svg viewBox="0 0 340 ${H}" preserveAspectRatio="none"><path d="${d}" fill=none stroke="var(--line)" stroke-width=10 stroke-dasharray="2 18" stroke-linecap=round /></svg>`+
+UN.map((u,i)=>{const s=G.done[i]?'done':i==cur?'cur':i<cur?'done':'lock',x=pt[i][0]/340*100;return`<button class="nd ${s}" style="left:${x}%;top:${pt[i][1]-36}px;--c:${u.c};--cd:${u.d}" onclick="go(${i},this)">${s=='lock'?'🔒':G.done[i]?'⭐':u.i}</button><div class=lbl style="left:${x}%;top:${pt[i][1]+50}px">${u.n}</div>`}).join('')+'</div>'}
+function go(i,el){if(i>0&&!G.done[i-1]){el.classList.add('shake');setTimeout(()=>el.classList.remove('shake'),400);return}
+L={u:i,q:UN[i].qs.map((_,k)=>k),n:UN[i].qs.length,cor:0,h:5,xp:0};show()}
+const hdr=()=>`<div class=lh><button class=x onclick=home()>✕</button><div class=pb><i id=bar style="width:${L.cor/L.n*100}%"></i></div><span id=hs>🔥${G.st} ❤️${L.h}</span></div>`;
+function show(){const q=UN[L.u].qs[L.q[0]],t=q.t;L.cur=q;
+X=t=='o'?{pool:shuf([...q.a.keys()]),pk:[]}:t=='r'?{as:q.i.map(_=>-1),sel:-1,ord:shuf([...q.i.keys()])}:t=='t'?{m:{},sel:-1,ro:shuf([...q.p.keys()])}:t=='q'?{s:new Set()}:t=='w'?{bank:shuf([...q.a,...q.d]),f:[]}:t=='p'?{b:0}:t=='c'?{v:0}:t=='l'?{v:q.min,mv:0}:{n:0};
+app.innerHTML=hdr()+`<div class=tag>${TAG[t]}</div><h2 class=q>${q.q}</h2><div id=body></div><div class=foot id=ft><div><button class=btn id=chk disabled onclick=chk()>Check</button></div></div>`;draw()}
+const ones=s=>[...s].filter(c=>c=='1').length,tot=q=>q.d.reduce((s,d,i)=>s+d*(q.d.length+1-i),0)+X.v,cz=(q,n)=>[...q.x].map(c=>String.fromCharCode((c.charCodeAt(0)-65+q.r*n+260)%26+65)).join('');
+function draw(){const q=L.cur,t=q.t;let h='',ok=true;
+if(t=='o'){h=`<div>${q.a.map((_,k)=>X.pk[k]!=null?`<button class="chip pk" onclick=oDel(${k})><b>${k+1}</b>${q.a[X.pk[k]]}</button>`:`<div class="chip empty">${k+1}</div>`).join('')}</div><div class=pool>${X.pool.filter(i=>!X.pk.includes(i)).map(i=>`<button class=chip onclick=oAdd(${i})>${q.a[i]}</button>`).join('')}</div>`;ok=X.pk.length==q.a.length}
+if(t=='r'){h=`<div class=bks>${q.b.map((nm,b)=>`<div class=bk onclick=rPut(${b})><h4>${nm}</h4>${X.ord.filter(i=>X.as[i]==b).map(i=>`<button class="chip sm" onclick="event.stopPropagation();X.as[${i}]=-1;draw()">${q.i[i][0]}</button>`).join('')}</div>`).join('')}</div><div class=pool>${X.ord.filter(i=>X.as[i]<0).map(i=>`<button class="chip${X.sel==i?' sel':''}" onclick="X.sel=${i};draw()">${q.i[i][0]}</button>`).join('')}</div><div class=hint>Tap an item, then tap the box where it belongs.</div>`;ok=X.as.every(v=>v>=0)}
+if(t=='t'){const st=l=>l!=null?`style="border-color:${CO[l]};background:${CO[l]}33"`:'';h=`<div class=mt><div>${q.p.map((p,i)=>`<button class="chip mi${X.sel==i?' sel':''}" ${st(X.m[i]!=null?i:null)} onclick=tL(${i})>${p[0]}</button>`).join('')}</div><div>${X.ro.map(j=>{const l=Object.keys(X.m).find(k=>X.m[k]==j);return`<button class="chip mi" ${st(l)} onclick=tR(${j})>${q.p[j][1]}</button>`}).join('')}</div></div><div class=hint>Tap a left card, then its match on the right.</div>`;ok=Object.keys(X.m).length==q.p.length}
+if(t=='q'){h=q.o.map((o,i)=>`<button class="opt${X.s.has(i)?' sel':''}" onclick=qTog(${i})>${o}</button>`).join('');ok=X.s.size>0}
+if(t=='w'){let k=-1;h=`<div class=sent>${q.s.replace(/\{\}/g,()=>{k++;const v=X.f[k];return`<button class="blank${v!=null?' fl':''}" onclick=wDel(${k})>${v!=null?X.bank[v]:'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'}</button>`})}</div><div class=pool>${X.bank.map((w,j)=>`<button class="chip${X.f.includes(j)?' used':''}" onclick=wAdd(${j})>${w}</button>`).join('')}</div>`;ok=X.f.length==q.a.length}
+if(t=='p'){const n=ones(q.bits)+X.b;h=`<div class=bits>${[...q.bits].map(c=>`<span class=bit>${c}</span>`).join('')}<button class="bit pbit" onclick="X.b^=1;draw()">${X.b}</button></div><div class=hint>7 data bits + parity bit (tap it). The byte has <b>${n}</b> ones, which is <b>${n%2?'odd':'even'}</b>.</div>`}
+if(t=='c'){const w=q.d.length+1,s=tot(q);h=`<div class=cd>${q.d.map((d,i)=>`<div class=cell><b>${d}</b><small>×${w-i}</small><em>${d*(w-i)}</em></div>`).join('')}<div class="cell chk"><b>${X.v}</b><small>×1</small><em>${X.v}</em></div></div><div class=bits><button class="btn b sm" onclick=cSt(-1)>−</button><button class="btn b sm" onclick=cSt(1)>+</button></div><div class=hint>Total = <b>${s}</b> · ${s} ÷ 11 leaves remainder <b>${s%11}</b></div>`}
+if(t=='z'){h=`<div class=hint>Ciphertext / input</div><div class=tiles>${[...q.x].map(c=>`<span class=tile>${c}</span>`).join('')}</div><div class=bits><button class="btn b sm" onclick=zSt(-1)>−</button><span class=pill>Shift ${X.n}</span><button class="btn b sm" onclick=zSt(1)>+</button></div><div class=tiles>${[...cz(q,X.n)].map(c=>`<span class="tile out">${c}</span>`).join('')}</div><div class=hint>${q.r>0?'Target: '+q.g:'Stop when the bottom row is a real word.'}</div>`;ok=X.n>0}
+if(t=='l'){h=`<div class=pill id=sv style="display:inline-block;font-size:28px;margin:6px 0">${X.v} ${q.unit}</div><input type=range class=rng min=${q.min} max=${q.max} step=${q.step} value=${X.v} oninput="X.v=+this.value;X.mv=1;sl()"><div class=hint id=sr>${q.f(X.v)}</div>`;ok=X.mv}
+$('#body').innerHTML=h;$('#chk').disabled=!ok}
+const sl=()=>{$('#sv').textContent=X.v+' '+L.cur.unit;$('#sr').textContent=L.cur.f(X.v);$('#chk').disabled=false},oAdd=i=>{X.pk.push(i);draw()},oDel=k=>{X.pk.splice(k,1);draw()},rPut=b=>{if(X.sel>=0){X.as[X.sel]=b;X.sel=-1;draw()}},wAdd=j=>{if(X.f.length<L.cur.a.length&&!X.f.includes(j)){X.f.push(j);draw()}},wDel=k=>{if(k<X.f.length){X.f.splice(k,1);draw()}},cSt=d=>{X.v=(X.v+d+10)%10;draw()},zSt=d=>{X.n=(X.n+d+26)%26;draw()},qTog=i=>{X.s.has(i)?X.s.delete(i):X.s.add(i);draw()};
+function tL(i){if(X.m[i]!=null){delete X.m[i];X.sel=-1}else X.sel=i;draw()}
+function tR(j){if(X.sel>=0){Object.keys(X.m).forEach(k=>{if(X.m[k]==j)delete X.m[k]});X.m[X.sel]=j;X.sel=-1}else Object.keys(X.m).forEach(k=>{if(X.m[k]==j)delete X.m[k]});draw()}
+function sol(q){const t=q.t;return t=='o'?q.a.map((a,k)=>`${k+1}. ${a}`).join(' · '):t=='r'?q.b.map((b,i)=>`${b}: ${q.i.filter(x=>x[1]==i).map(x=>x[0]).join(', ')}`).join(' | '):t=='t'?q.p.map(p=>`${p[0]} → ${p[1]}`).join(' · '):t=='q'?q.c.map(i=>q.o[i]).join(' · '):t=='w'?q.a.join(', '):t=='p'?'Parity bit = '+(((q.m=='odd'?1:0)+ones(q.bits))%2):t=='c'?'Check digit = '+((11-(tot(q)-X.v)%11)%11):t=='l'?q.g+' '+q.unit:q.g}
+function chk(){const q=L.cur,t=q.t;let ok;
+if(t=='o')ok=X.pk.every((v,k)=>v==k);
+else if(t=='r')ok=X.as.every((v,i)=>v==q.i[i][1]);
+else if(t=='t')ok=q.p.every((_,i)=>X.m[i]==i);
+else if(t=='q'){ok=X.s.size==q.c.length&&q.c.every(i=>X.s.has(i));document.querySelectorAll('.opt').forEach((e,i)=>{e.className='opt'+(q.c.includes(i)?' good':X.s.has(i)?' bad':'')})}
+else if(t=='w')ok=X.f.every((j,k)=>X.bank[j]==q.a[k]);
+else if(t=='p')ok=(ones(q.bits)+X.b)%2==(q.m=='odd'?1:0);
+else if(t=='c')ok=tot(q)%11==0;
+else if(t=='l')ok=Math.abs(X.v-q.g)<1e-9;
+else ok=cz(q,X.n)==q.g;
+const s=sol(q);$('#body').classList.add('lock');
+if(ok){L.cor++;L.xp+=10;G.xp+=10;G.st++;G.best=Math.max(G.best,G.st);sOk()}else{L.h--;G.st=0;L.q.push(L.q[0]);sBad();$('#body').classList.add('shake')}
+L.q.shift();$('#bar').style.width=L.cor/L.n*100+'%';$('#hs').textContent=`🔥${G.st} ❤️${L.h}`;
+const f=$('#ft');f.className='foot '+(ok?'ok':'bad');
+f.innerHTML=`<div><div class=fb><h3>${ok?['✓ Correct! +10 XP','✓ Nailed it! +10 XP','✓ Great job! +10 XP'][L.cor%3]:'✗ Not quite. −1 heart'}</h3>${ok?'':`<p><b>Solution: ${s}</b></p>`}<p>${q.e}</p></div><button class="btn ${ok?'':'r'}" id=nx onclick=nxt()>Continue</button></div>`;$('#nx').focus()}
+function nxt(){if(L.h<=0)return fail();if(!L.q.length)return win();show()}
+function fail(){const m=document.createElement('div');m.className='modal';m.innerHTML=`<div class=box><div class=big>💔</div><h2>Out of Hearts</h2><p>Level failed! Review the explanations and try again.</p><button class=btn onclick="this.closest('.modal').remove();go(${L.u})">Retry level</button><p><button class="btn b" onclick="this.closest('.modal').remove();home()">Back to the path</button></p></div>`;document.body.appendChild(m)}
+function win(){G.done[L.u]=1;sWin();const last=L.u==UN.length-1;app.innerHTML=`<div style="text-align:center;padding-top:50px"><div style="font-size:80px">${last?'🏆':'🎉'}</div><h1>${last?'Chapter complete!':'Level complete!'}</h1><p style="color:var(--mut)">${UN[L.u].n}</p><div class=stats><div>⚡<b>${L.xp}</b>XP</div><div>❤️<b>${L.h}</b>hearts left</div><div>🔥<b>${G.best}</b>best streak</div></div><button class=btn onclick=home()>Continue</button></div>`;confetti()}
+function confetti(){const c=$('#cv'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;const k=['#58cc02','#ff4b4b','#1cb0f6','#ffc800'],p=Array.from({length:150},()=>({x:Math.random()*c.width,y:-20-Math.random()*c.height*.5,w:6+Math.random()*8,h:8+Math.random()*10,vx:Math.random()*4-2,vy:2+Math.random()*4,r:0,vr:Math.random()*.3-.15,c:k[Math.random()*4|0]}));let t=0;(function f(){x.clearRect(0,0,c.width,c.height);p.forEach(a=>{a.x+=a.vx;a.y+=a.vy;a.r+=a.vr;x.save();x.translate(a.x,a.y);x.rotate(a.r);x.fillStyle=a.c;x.fillRect(-a.w/2,-a.h/2,a.w,a.h);x.restore()});if(++t<220)requestAnimationFrame(f);else x.clearRect(0,0,c.width,c.height)})()}
+document.addEventListener('keydown',e=>{if(e.key!='Enter')return;const n=$('#nx'),c=$('#chk');if(n)n.click();else if(c&&!c.disabled)c.click()});
+home();
+</script></body></html>
